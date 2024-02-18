@@ -1,0 +1,54 @@
+Feature: Wyszukiwanie produktu na Allegro
+
+    Background:
+        Given użytkownik znajduje się na stronie https://allegro.pl/
+        And użytkownik chce wyszukać produkt za pomocą słów kluczowych
+    
+        Scenario: Klient wpisuje nazwę produktu w pole wyszukiwania
+            Given klient wpisuje w pole wyszukiwania <wartość>
+            When aplikacja przeszukuje bazy danych w poszukiwaniu <wartość> i zwraca <wyniki>
+            Then dropbox z pola wyszukiwania rozwija się pokazując <opcje>
+
+            Examples:
+            | wartość | wyniki          | opcje                         | 
+            | buty    | wiele wyników   | wyświetlona lista             |
+            | ';;';'; | brak wyników    | nic nie wyświetlone           |
+            | xxxxxxx | jeden wynik     | możliwość wyszukania tej frazy| 
+
+Feature: Wybór produktu przez klienta
+
+    Background:
+        Given użytkownik jest na stronie produktu
+
+        Scenario: użytkownik dodaje produkt do koszyka
+            Given użytkownik klika przycisk "DODAJ DO KOSZYKA"
+            When produkt jest dodany do koszyka
+            Then Ikona koszyka zmienia się pokazując aktualną liczbę produktów
+            And Pojawia się okno informujące o dodaniu produktu do koszyka 
+            And w wyświetlonym oknie pokazane są inne produkty od sprzedającego oraz przyciski "Kupuj dalej" oraz "Idź do koszyka"
+
+        Scenario: użytkownik kupuje produkt za pomocą "Kup i zapłać"
+            Given użytkownik klika "Kup i zapłać"
+            When otwiera się okno "Podsumowanie"
+            Then okno zawiera możliwość wyboru dostawy
+            And okno zawiera możliwość edycji ustawień faktury
+            And okno zawiera możliwość edycji płatności (domyślnie BLIK)
+
+Feature: użytkownik finalizuje zakup na stronie koszyka
+    
+    Background: 
+        Given użytkownik jest na stronie koszyka
+        And koszyk nie jest pusty
+        And użytkownik chce dokonać jego zakupu
+
+        Scenario:  użytkownik chce zapłacić z Allegor pay
+            Given użytkownik klika przycisk "Zapłać później"
+            When wyświetla się strona z danymi odbiorcy, metodami dostawy i metodą płatności Allegro pay
+            And użytkownik wypełnia wszystkie wymagane pola (Dane odbiorcy, metody dostawy, metody płatności)
+            Then użytkownik kupuje produktu klikając przycisk "Kupuje z Allegro Pay"
+
+        Scenario: użytkownik chce dokonać domyślnego sposobu zakupienia produktu
+            Given użytkownik klika przycisk "Dostawa i płatnbość"
+            When wyświetla się strona z danymi odbiorcy, metodami dostawy i metodami płatności
+            And użytkownik wypełnia wszystkie wymagane pola (Dane odbiorcy, metody dostawy, metody płatności)
+            Then użytkownik kupuje produktu klikając przycisk "Kupuję i płacę"
